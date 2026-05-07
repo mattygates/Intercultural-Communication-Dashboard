@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Intercultural Effectiveness Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <div class="container">
+      <h1>Intercultural Effectiveness Dashboard</h1>
+      <p class="subtitle">Culture Map + Intrivity MRTS | Reflection → Action</p>
+    </div>
+  </header>
+
+  <div class="dashboard-layout container">
+    <nav class="sidebar no-print">
+      <button class="nav-btn active" data-section="sec1">1. Interpreting Results</button>
+      <button class="nav-btn" data-section="sec2">2. Communication Profile</button>
+      <button class="nav-btn" data-section="sec3">3. Feedback Style</button>
+      <button class="nav-btn" data-section="sec4">4. Decision-Making</button>
+      <button class="nav-btn" data-section="sec5">5. Collaboration Style</button>
+      <button class="nav-btn" data-section="sec6">6. Conflict Management</button>
+      <button class="nav-btn" data-section="sec7">7. Time & Execution</button>
+      <button class="nav-btn" data-section="sec8">8. Space & Nonverbals</button>
+      <button class="nav-btn" data-section="sec9">9. Blind Spot Map</button>
+      <button class="nav-btn" data-section="sec10">10. Action Plan</button>
+      <button class="nav-btn" data-section="sec11">11. Team Prompts</button>
+      <button class="nav-btn highlight" data-section="summary">📄 Generate Snapshot</button>
+      <button class="nav-btn secondary" onclick="window.print()">🖨️ Print / Save PDF</button>
+    </nav>
+
+    <main class="content-area">
+      <!-- SECTION 1 -->
+      <section id="sec1" class="panel active">
+        <h2>Section 1: Interpreting Your Results</h2>
+        <div class="card">
+          <h3>Definition</h3>
+          <p>Helps you read combined results without overgeneralizing, stereotyping, or treating the assessment as a fixed label.</p>
+          
+          <h4>1. Culture is not personality</h4>
+          <p>The Culture Map gives likely cultural patterns. Intrivity gives individual tendencies. Neither fully defines you.</p>
+          <p><em>Prompt:</em> “Where do my personal results align with the culture I come from, and where do I differ?”</p>
+          <textarea id="sec1-prompt1" placeholder="Your reflection..."></textarea>
+
+          <h4>2. Look for patterns, not labels</h4>
+          <p>Instead of “I am indirect,” think: “In some contexts, I may rely more on implication, tone, silence, or relationship cues than explicit words.”</p>
+          <textarea id="sec1-prompt2" placeholder="Your reflection..."></textarea>
+
+          <h4>3. Compare self-perception with impact</h4>
+          <p>Separate: What I intend → What I do → How others may interpret it → What I may need to clarify.</p>
+          <p><em>Example:</em> “I intend to be respectful by softening disagreement. Others may experience this as unclear or withholding.”</p>
+          <textarea id="sec1-prompt3" placeholder="Your reflection..."></textarea>
+
+          <h4>4. Culture Map vs Intrivity Interpretation</h4>
+          <table class="simple-table">
+            <tr><th>Lens</th><th>What it tells me</th><th>What it does not tell me</th></tr>
+            <tr><td>Culture Map</td><td>Cultural tendencies & likely friction points</td><td>Exact behaviour of an individual</td></tr>
+            <tr><td>Intrivity</td><td>Individual communication & interaction tendencies</td><td>Full cultural/organizational/situational context</td></tr>
+            <tr><td>Combined view</td><td>Where cultural & personal styles interact</td><td>A fixed diagnosis</td></tr>
+          </table>
+
+          <div class="warning-box">
+            <strong>⚠️ Reflection Warning:</strong> Do not use this profile to excuse behaviour. Use it to understand impact and make better choices.
+          </div>
+          <textarea id="sec1-prompt4" placeholder="How will you apply this warning in your practice?"></textarea>
+        </div>
+      </section>
+
+      <!-- SECTION 2 -->
+      <section id="sec2" class="panel">
+        <h2>Section 2: My Intercultural Communication Profile</h2>
+        <div class="card">
+          <p><em>Inputs: Culture Map (Communicating, Evaluating, Disagreeing) + Intrivity (Message Domain)</em></p>
+          <div class="grid-2">
+            <div>
+              <h4>My Tendencies</h4>
+              <ul>
+                <li>Am I more explicit or subtle?</li>
+                <li>Do I expect others to read between the lines?</li>
+                <li>Do I rely on tone, emotion, silence, or context?</li>
+                <li>Do I ask clarifying questions or assume meaning?</li>
+              </ul>
+            </div>
+            <div>
+              <h4>Strengths & Risks</h4>
+              <p><strong>Strengths:</strong> Pick up subtle signals, adapt between communicators, bridge explicit/high-context styles.</p>
+              <p><strong>Risks:</strong> Overread emotion, assume silence=agreement, think I'm clear when others need explicit detail, experience directness as harsh.</p>
+            </div>
+          </div>
+          <h4>Reflection Questions</h4>
+          <textarea id="sec2-reflection" placeholder="What do I expect people to understand without saying directly? When do I need to be more explicit or listen beyond literal words?"></textarea>
+          <div class="tool-box">
+            <strong>🎯 Behaviour Goal:</strong> “Before assuming meaning, I will ask one clarifying question.”<br>
+            <em>Example:</em> “When you say this will be difficult, do you mean it’s not possible, or do you mean we need to adjust the plan?”
+          </div>
+          <textarea id="sec2-goal" placeholder="Write your personalized communication behaviour goal here..."></textarea>
+        </div>
+      </section>
+
+      <!-- SECTION 3 -->
+      <section id="sec3" class="panel">
+        <h2>Section 3: My Feedback Style</h2>
+        <div class="card">
+          <p><em>Inputs: Culture Map (Evaluating, Communicating, Disagreeing, Leading) + Intrivity (Message, Relationship, Conflict)</em></p>
+          <h4>My Feedback Tendencies</h4>
+          <p>Do I prefer direct/softened? Separate message/relationship? Public/private? Blunt/diplomatic? Avoid to preserve harmony?</p>
+          <h4>Strengths & Risks</h4>
+          <p><strong>Strengths:</strong> Respectful, protect relationships, adjust based on status/trust/context, notice emotional reactions.</p>
+          <p><strong>Risks:</strong> Too vague, directness feels disrespectful, softened feedback lacks action, delay corrective feedback.</p>
+          <textarea id="sec3-reflection" placeholder="Would my feedback be clear to a direct culture? Respectful to an indirect culture? Have I separated person from behaviour?"></textarea>
+          <div class="tool-box">
+            <strong>🛠️ Feedback Structure:</strong> Observation → Impact → Expectation → Support<br>
+            <em>Example:</em> “I noticed the update didn’t include decision risks. That made it harder to know what needed escalation. Next time, please include top two risks and your recommendation. I’m happy to review the first one with you.”
+          </div>
+          <textarea id="sec3-tool" placeholder="Draft one feedback message using the structure above..."></textarea>
+        </div>
+      </section>
+
+      <!-- SECTION 4 -->
+      <section id="sec4" class="panel">
+        <h2>Section 4: My Decision-Making Style</h2>
+        <div class="card">
+          <p><em>Inputs: Culture Map (Deciding, Leading, Persuading, Scheduling) + Intrivity (Relationship, Time, Adjustment)</em></p>
+          <h4>My Decision Tendencies</h4>
+          <p>Consensus vs top-down? Expect broad consultation? Fast vs careful alignment? Need principles, evidence, or relationships before deciding?</p>
+          <textarea id="sec4-reflection" placeholder="Who owns this decision? Who gives input? Who has veto? When is it final? How will it be communicated?"></textarea>
+          <div class="tool-box">
+            <strong>🔑 Decision Tool:</strong> For every major decision, answer:
+            <ol>
+              <li>What decision is being made?</li>
+              <li>Who owns it?</li>
+              <li>Who gives input?</li>
+              <li>Who has veto power?</li>
+              <li>When is it final?</li>
+              <li>How will it be communicated?</li>
+            </ol>
+          </div>
+          <textarea id="sec4-tool" placeholder="Apply the decision tool to an upcoming decision..."></textarea>
+        </div>
+      </section>
+
+      <!-- SECTION 5 -->
+      <section id="sec5" class="panel">
+        <h2>Section 5: My Collaboration Style</h2>
+        <div class="card">
+          <p><em>Inputs: Culture Map (Trusting, Communicating, Leading, Scheduling) + Intrivity (Relationship, Network, Time)</em></p>
+          <h4>My Collaboration Tendencies</h4>
+          <p>Trust through task or relationship? Communicate openly with known circle? Share widely or selectively? Formal vs informal channels? Mix personal/professional?</p>
+          <textarea id="sec5-reflection" placeholder="Who might feel outside the information loop? Am I assuming trust because tasks are clear or relationships exist?"></textarea>
+          <div class="tool-box">
+            <strong>🤝 Collaboration Action:</strong> “Name the working norm instead of assuming it.”<br>
+            <em>Example:</em> “For this project, let’s agree how we’ll share updates, response times, and when something needs a live conversation instead of email.”
+          </div>
+          <textarea id="sec5-action" placeholder="Write a collaboration norm to establish..."></textarea>
+        </div>
+      </section>
+
+      <!-- SECTION 6 -->
+      <section id="sec6" class="panel">
+        <h2>Section 6: My Conflict Management Style</h2>
+        <div class="card">
+          <p><em>Inputs: Culture Map (Disagreeing, Evaluating, Leading) + Intrivity (Conflict, Persuasion, Emotion)</em></p>
+          <h4>My Conflict Tendencies</h4>
+          <p>Address directly or indirectly? Soften disagreement? Avoid confrontation? Separate disagreement from relationship? Expect public or private disagreement?</p>
+          <textarea id="sec6-reflection" placeholder="What assumption am I making about intent? What behaviour did I actually observe? What outcome do I want?"></textarea>
+          <div class="tool-box">
+            <strong>💬 Conflict Conversation Script:</strong> “I want to check something before I make an assumption. I noticed ____. I interpreted it as ____. I may be wrong. Can you help me understand what was happening from your perspective?”
+          </div>
+          <textarea id="sec6-script" placeholder="Fill in the script with a current tension..."></textarea>
+        </div>
+      </section>
+
+      <!-- SECTION 7 -->
+      <section id="sec7" class="panel">
+        <h2>Section 7: My Time, Urgency & Execution Style</h2>
+        <div class="card">
+          <p><em>Inputs: Culture Map (Scheduling, Deciding) + Intrivity (Time Domain, Deadlines, Task Structure)</em></p>
+          <h4>My Time Tendencies</h4>
+          <p>Deadlines fixed or flexible? Prefer exact start/end times? Multitask or sequential? Lateness = disrespect? Adapt to fluid time?</p>
+          <textarea id="sec7-reflection" placeholder="Have I clarified if deadlines are fixed or flexible? What does 'urgent' mean here? Who needs early warning?"></textarea>
+          <div class="tool-box">
+            <strong>⏱️ Execution Action:</strong> Replace vague time language with specific agreements.<br>
+            <em>Instead of:</em> “Send it soon.”<br>
+            <em>Say:</em> “Please send the first draft by Thursday at 3 p.m. If that timeline is at risk, let me know by Wednesday noon.”
+          </div>
+          <textarea id="sec7-action" placeholder="Rewrite a vague timeline request into a specific working agreement..."></textarea>
+        </div>
+      </section>
+
+      <!-- SECTION 8 -->
+      <section id="sec8" class="panel">
+        <h2>Section 8: My Space, Presence & Nonverbal Style</h2>
+        <div class="card">
+          <p><em>Inputs: Culture Map (Communicating, Leading, Disagreeing) + Intrivity (Space, Nonverbals, Silence, Engagement)</em></p>
+          <h4>My Nonverbal Tendencies</h4>
+          <p>Silence to think or signal? Interrupt as engagement or avoid as respect? Eye contact? Expressiveness? Physical distance?</p>
+          <textarea id="sec8-reflection" placeholder="What might my silence communicate? How do I show listening? Am I reading too much into nonverbals?"></textarea>
+          <div class="tool-box">
+            <strong>🗣️ Practical Behaviour:</strong> Label silence.<br>
+            <em>Example:</em> “I’m going to pause for a moment to think. I’m not disagreeing. I’m processing.”
+          </div>
+          <textarea id="sec8-action" placeholder="Note where you will intentionally label silence or nonverbal cues..."></textarea>
+        </div>
+      </section>
+
+      <!-- SECTION 9 -->
+      <section id="sec9" class="panel">
+        <h2>Section 9: My Blind Spot Map</h2>
+        <div class="card">
+          <div class="grid-3">
+            <div>
+              <h4>1. What I know</h4>
+              <textarea id="sec9-known" placeholder="e.g., I prefer clear deadlines..."></textarea>
+            </div>
+            <div>
+              <h4>2. What I know I need to work on</h4>
+              <textarea id="sec9-work" placeholder="e.g., I need to be more explicit in feedback..."></textarea>
+            </div>
+            <div>
+              <h4>3. What I may not know yet</h4>
+              <textarea id="sec9-unknown" placeholder="e.g., People outside my trusted circle may see me as less transparent..."></textarea>
+            </div>
+          </div>
+          <textarea id="sec9-reflection" placeholder="What might others misinterpret? What do I assume is 'professional' or 'respectful' differently? Where do I need feedback?"></textarea>
+          <div class="tool-box">
+            <strong>✅ Check this with others:</strong> “One thing I want to check with my team is...”
+          </div>
+          <textarea id="sec9-check" placeholder="Write the exact question you will ask..."></textarea>
+        </div>
+      </section>
+
+      <!-- SECTION 10 -->
+      <section id="sec10" class="panel">
+        <h2>Section 10: My Intercultural Action Plan</h2>
+        <div class="card">
+          <div class="grid-2">
+            <div>
+              <h4>Keep</h4>
+              <textarea id="sec10-keep" placeholder="One behaviour that is working..."></textarea>
+              <h4>Adapt</h4>
+              <textarea id="sec10-adapt" placeholder="One behaviour to adjust..."></textarea>
+              <h4>Start</h4>
+              <textarea id="sec10-start" placeholder="One new behaviour..."></textarea>
+            </div>
+            <div>
+              <h4>Stop</h4>
+              <textarea id="sec10-stop" placeholder="One behaviour creating friction..."></textarea>
+              <h4>Ask</h4>
+              <textarea id="sec10-ask" placeholder="One conversation to have..."></textarea>
+              <h4>Team Norm to Clarify</h4>
+              <textarea id="sec10-norm" placeholder="What does X mean for this team?..."></textarea>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 11 -->
+      <section id="sec11" class="panel">
+        <h2>Section 11: Team Conversation Prompts</h2>
+        <div class="card">
+          <p>Use these to align your team. Add your notes beside each.</p>
+          <ul class="prompt-list">
+            <li><strong>Communication:</strong> “How explicit do we need to be with each other?” <textarea class="inline-input" id="sec11-comm"></textarea></li>
+            <li><strong>Feedback:</strong> “How do we give constructive feedback clearly and respectfully?” <textarea class="inline-input" id="sec11-feed"></textarea></li>
+            <li><strong>Decision-making:</strong> “When do we need consensus, and when does one person decide?” <textarea class="inline-input" id="sec11-dec"></textarea></li>
+            <li><strong>Collaboration:</strong> “What information needs to be shared openly, and what stays local?” <textarea class="inline-input" id="sec11-collab"></textarea></li>
+            <li><strong>Conflict:</strong> “How do we raise disagreement early without damaging relationships?” <textarea class="inline-input" id="sec11-conf"></textarea></li>
+            <li><strong>Time:</strong> “What deadlines are fixed, and where is there flexibility?” <textarea class="inline-input" id="sec11-time"></textarea></li>
+            <li><strong>Trust:</strong> “How do we build trust across distance, culture, and function?” <textarea class="inline-input" id="sec11-trust"></textarea></li>
+          </ul>
+          <button id="generate-snapshot-btn" class="btn-primary">📄 Generate One-Page Snapshot</button>
+        </div>
+      </section>
+
+      <!-- SUMMARY VIEW -->
+      <section id="summary" class="panel print-only">
+        <div class="snapshot-container">
+          <h2>My Intercultural Effectiveness Snapshot</h2>
+          <div class="snapshot-grid">
+            <div class="snapshot-col">
+              <h3>My Likely Strengths</h3>
+              <ul id="snap-strengths">
+                <li>I may be strong at...</li>
+                <li>I may help the team by...</li>
+                <li>I may bridge differences around...</li>
+              </ul>
+            </div>
+            <div class="snapshot-col">
+              <h3>My Likely Risks</h3>
+              <ul id="snap-risks">
+                <li>I may unintentionally...</li>
+                <li>Others may misread me as...</li>
+                <li>I may struggle when...</li>
+              </ul>
+            </div>
+          </div>
+          <h3>My Top 3 Development Actions</h3>
+          <ol id="snap-actions">
+            <li id="snap-action-1">Be more explicit about...</li>
+            <li id="snap-action-2">Ask before assuming...</li>
+            <li id="snap-action-3">Clarify team norms around...</li>
+          </ol>
+          <div class="snapshot-conversation">
+            <h3>My Key Conversation to Have</h3>
+            <p id="snap-conversation">“The conversation I need to have with my team is...”</p>
+          </div>
+          <button onclick="window.print()" class="btn-secondary no-print">🖨️ Print / Save as PDF</button>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
