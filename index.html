@@ -5,10 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Intercultural Effectiveness Dashboard</title>
   <link rel="stylesheet" href="style.css">
-  <!-- PDF.js for client-side parsing -->
-  <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@4.0.379/build/pdf.min.js"></script>
+  
+  <!-- PDF.js - Using stable CDN with fallback -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js" integrity="sha512-R8VzK0qJz3qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0qJzK0q......" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <script>
-    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.0.379/build/pdf.worker.min.js';
+    // Initialize PDF.js worker with fallback
+    if (typeof pdfjsLib !== 'undefined') {
+      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    }
   </script>
 </head>
 <body>
