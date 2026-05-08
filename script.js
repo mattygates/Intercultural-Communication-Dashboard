@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
     space:{key:'s',name:'Space',dims:['communicating','disagreeing','leading'],intrivity:'How you use presence, silence, nonverbals, and interpersonal distance.'}
   };
 
-  window.updateVal=(id,val)=>{cm[id]=Number(val);document.getElementById(`val-${id}`).textContent=`${val}/10`;renderBars();save()};
+  window.updateVal=(id,val)=>{cm[id]=Number.parseFloat(val);document.getElementById(`val-${id}`).textContent=`${val}/10`;renderBars();save()};
 
   async function parsePdf(file){
     const buf=await file.arrayBuffer();
