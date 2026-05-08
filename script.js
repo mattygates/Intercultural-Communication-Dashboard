@@ -26,69 +26,108 @@ document.addEventListener('DOMContentLoaded', () => {
     saveToStorage();
   };
 
-  // === PDF UPLOAD & PARSING ===
-  const dropZone = document.getElementById('drop-zone');
-  const pdfInput = document.getElementById('pdf-input');
-  const pdfStatus = document.getElementById('pdf-status');
-  const mrtsDisplay = document.getElementById('mrts-display');
+// === ROBUST PDF UPLOAD & PARSING ===
+const dropZone = document.getElementById('drop-zone');
+const pdfInput = document.getElementById('pdf-input');
+const pdfStatus = document.getElementById('pdf-status');
+const mrtsDisplay = document.getElementById('mrts-display');
 
-  // Drag & drop handlers
-  ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-    dropZone.addEventListener(eventName, e => {
-      e.preventDefault();
-      e.stopPropagation();
-    });
-  });
-  ['dragenter', 'dragover'].forEach(eventName => {
-    dropZone.addEventListener(eventName, () => dropZone.classList.add('dragover'));
-  });
-  ['dragleave', 'drop'].forEach(eventName => {
-    dropZone.addEventListener(eventName, () => dropZone.classList.remove('dragover'));
-  });
+// Check if PDF.js loaded
+function isPDFjsReady() {
+  return typeof pdfjsLib !== 'undefined' && pdfjsLib.getDocument;
+}
 
-  dropZone.addEventListener('drop', e => {
-    const files = e.dataTransfer.files;
-    if (files[0]?.type === 'application/pdf') handlePDF(files[0]);
-  });
-
-  pdfInput.addEventListener('change', e => {
-    if (e.target.files[0]) handlePDF(e.target.files[0]);
-  });
-
-  async function handlePDF(file) {
-    pdfStatus.className = 'status-box processing';
-    pdfStatus.textContent = '🔄 Parsing PDF...';
+// Show manual entry fallback
+function showManualEntry() {
+  pdfStatus.className = 'status-box error';
+  pdfStatus.innerHTML = `
+    ⚠️ PDF parsing unavailable. Please enter your MRTS profile manually:
+    <div style="margin-top:12px; display:grid; grid-template-columns:repeat(4,1fr); gap:8px;">
+      <div><label>Message (1-5): <input type="number" id="manual-m" min="1" max="5" value="3"></label></div>
+      <div><label>Relationship (1-5): <input type="number" id="manual-r" min="1" max="5" value="4"></label></div>
+      <div><label>Time (1-5): <input type="number" id="manual-t" min="1" max="5" value="3"></label></div>
+      <div><label>Space (1-5): <input type="number" id="manual-s" min="1" max="5" value="2"></label></div>
+    </div>
+    <button id="use-manual-btn" class="btn-primary" style="margin-top:12px;">Use Manual Entry</button>
+  `;
+  
+  document.getElementById('use-manual-btn')?.addEventListener('click', () => {
+    const m = parseInt(document.getElementById('manual-m').value);
+    const r = parseInt(document.getElementById('manual-r').value);
+    const t = parseInt(document.getElementById('manual-t').value);
+    const s = parseInt(document.getElementById('manual-s').value);
     
-    try {
-      const arrayBuffer = await file.arrayBuffer();
-      const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
-      
-      let fullText = '';
-      for (let i = 1; i <= pdf.numPages; i++) {
-        const page = await pdf.getPage(i);
-        const content = await page.getTextContent();
-        fullText += content.items.map(item => item.str).join(' ');
-      }
-      
-      // Extract MRTS profile using regex patterns from Intrivity PDF structure
-      const mrtsProfile = extractMRTSProfile(fullText);
-      
-      if (mrtsProfile) {
-        mrtsData = mrtsProfile;
-        displayMRTSResults(mrtsProfile);
-        pdfStatus.className = 'status-box success';
-        pdfStatus.textContent = '✅ MRTS profile extracted successfully!';
-        mrtsDisplay.style.display = 'block';
-        saveToStorage();
-      } else {
-        throw new Error('Could not find MRTS profile in PDF. Please ensure you uploaded the correct Intrivity results file.');
-      }
-    } catch (err) {
-      console.error('PDF parse error:', err);
-      pdfStatus.className = 'status-box error';
-      pdfStatus.textContent = `❌ Error: ${err.message}`;
-    }
+    mrtsData = { profile: `${m}${r}${t}${s}`, m, r, t, s };
+    displayMRTSResults(mrtsData);
+    mrtsDisplay.style.display = 'block';
+    pdfStatus.className = 'status-box success';
+    pdfStatus.textContent = '✅ Manual profile loaded!';
+    saveToStorage();
+  });
+}
+
+// Drag & drop handlers
+['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+  dropZone?.addEventListener(eventName, e => { e.preventDefault(); e.stopPropagation(); }, false);
+});
+['dragenter', 'dragover'].forEach(eventName => {
+  dropZone?.addEventListener(eventName, () => dropZone?.classList.add('dragover'), false);
+});
+['dragleave', 'drop'].forEach(eventName => {
+  dropZone?.addEventListener(eventName, () => dropZone?.classList.remove('dragover'), false);
+});
+
+dropZone?.addEventListener('drop', e => {
+  const file = e.dataTransfer?.files?.[0];
+  if (file?.type === 'application/pdf') handlePDF(file);
+}, false);
+
+pdfInput?.addEventListener('change', e => {
+  if (e.target.files?.[0]) handlePDF(e.target.files[0]);
+}, false);
+
+async function handlePDF(file) {
+  // Check library first
+  if (!isPDFjsReady()) {
+    console.warn('PDF.js not loaded, falling back to manual entry');
+    showManualEntry();
+    return;
   }
+
+  pdfStatus.className = 'status-box processing';
+  pdfStatus.textContent = '🔄 Parsing PDF...';
+  
+  try {
+    const arrayBuffer = await file.arrayBuffer();
+    const loadingTask = pdfjsLib.getDocument(arrayBuffer);
+    const pdf = await loadingTask.promise;
+    
+    let fullText = '';
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const page = await pdf.getPage(i);
+      const content = await page.getTextContent();
+      fullText += content.items.map(item => item.str).join(' ') + ' ';
+    }
+    
+    const mrtsProfile = extractMRTSProfile(fullText);
+    
+    if (mrtsProfile) {
+      mrtsData = mrtsProfile;
+      displayMRTSResults(mrtsProfile);
+      pdfStatus.className = 'status-box success';
+      pdfStatus.textContent = '✅ MRTS profile extracted!';
+      mrtsDisplay.style.display = 'block';
+      saveToStorage();
+    } else {
+      throw new Error('MRTS profile not found in PDF');
+    }
+  } catch (err) {
+    console.error('PDF parse error:', err);
+    pdfStatus.className = 'status-box error';
+    pdfStatus.innerHTML = `❌ ${err.message}<br><button id="retry-manual-btn" class="btn-secondary" style="margin-top:8px;">Enter Manually</button>`;
+    document.getElementById('retry-manual-btn')?.addEventListener('click', showManualEntry);
+  }
+}
 
   function extractMRTSProfile(text) {
     // Pattern 1: Look for "MRTS PROFILE X X X X" or "M R T S X X X X"
