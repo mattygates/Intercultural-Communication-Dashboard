@@ -109,5 +109,61 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+
+
+  function parseMRTSFromText(text) {
+    const match = text.match(/MRTS\s+(?:PROFILE\s+)?([1-5])\s+([1-5])\s+([1-5])\s+([1-5])/i);
+    if (!match) return null;
+    const [, m, r, t, sp] = match;
+    return { profile: `${m}${r}${t}${sp}`, m: Number(m), r: Number(r), t: Number(t), s: Number(sp) };
+  }
+
+  const pdfInput = document.getElementById('pdf-input');
+  const erinInput = document.getElementById('erin-input');
+  const pdfStatus = document.getElementById('pdf-status');
+  const mrtsDisplay = document.getElementById('mrts-display');
+
+  pdfInput?.addEventListener('change', async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const text = await file.text();
+    const parsed = parseMRTSFromText(text);
+    if (!parsed) {
+      pdfStatus.textContent = 'Could not parse MRTS from file. Upload JSON with {"mrts":{"m":..,"r":..,"t":..,"s":..}}.';
+      pdfStatus.className = 'status-box error';
+      return;
+    }
+    mrtsData = parsed;
+    displayMRTSResults(parsed);
+    if (mrtsDisplay) mrtsDisplay.style.display = 'block';
+    pdfStatus.textContent = 'Intrivity profile uploaded.';
+    pdfStatus.className = 'status-box success';
+    saveToStorage();
+  });
+
+  erinInput?.addEventListener('change', async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const data = JSON.parse(await file.text());
+      const dims = ['communicating','evaluating','disagreeing','leading','deciding','trusting','scheduling'];
+      dims.forEach((d) => {
+        if (typeof data[d] === 'number') {
+          const slider = document.getElementById(d);
+          if (slider) {
+            slider.value = String(data[d]);
+            updateVal(d, data[d]);
+          }
+        }
+      });
+      pdfStatus.textContent = 'Erin Meyer results loaded.';
+      pdfStatus.className = 'status-box success';
+      saveToStorage();
+    } catch {
+      pdfStatus.textContent = 'Invalid Erin Meyer JSON format.';
+      pdfStatus.className = 'status-box error';
+    }
+  });
+
   loadFromStorage();
 });
