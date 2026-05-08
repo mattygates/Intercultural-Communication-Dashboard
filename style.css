@@ -66,3 +66,50 @@
   margin-right: 6px;
   font-weight: 500;
 }
+.insight-card {
+  background: var(--bg);
+  padding: 16px;
+  border-radius: var(--radius);
+  border-left: 4px solid var(--primary);
+  margin-bottom: 12px;
+}
+.insight-card.highlight {
+  border-left-color: var(--success);
+  background: #f0fdf4;
+}
+.insight-item {
+  padding: 12px;
+  margin: 8px 0;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+}
+.insight-item.misaligned {
+  background: #fef2f2;
+  border-color: #fecaca;
+}
+.insight-item.aligned {
+  background: #f0fdf4;
+  border-color: #86efac;
+}
+.insight-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.insight-tag {
+  background: var(--highlight);
+  color: var(--primary);
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+.action-box {
+  background: var(--highlight);
+  padding: 16px;
+  border-radius: var(--radius);
+  margin-top: 16px;
+}
+.mb-2 { margin-bottom: 16px; }
+.mt-2 { margin-top: 16px; }
