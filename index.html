@@ -122,7 +122,32 @@
           <h3>💡 Combined Insights: Culture Map + MRTS</h3>
           <div id="insights-content"></div>
         </div>
-
+<!-- INTEGRATED INSIGHTS SECTION -->
+<div id="integrated-insights" class="card" style="display:none;">
+  <h3>🔗 Integrated Insights: MRTS + Culture Map</h3>
+  <p class="small">Personalized recommendations based on how your individual style interacts with cultural expectations.</p>
+  
+  <div id="insights-summary" class="grid-2 mb-2">
+    <div class="insight-card highlight">
+      <h4>🎯 Top Development Priority</h4>
+      <p id="priority-insight">Loading...</p>
+    </div>
+    <div class="insight-card">
+      <h4>✅ Natural Strength</h4>
+      <p id="strength-insight">Loading...</p>
+    </div>
+  </div>
+  
+  <div id="detailed-insights">
+    <!-- Dynamically populated -->
+  </div>
+  
+  <div class="action-box mt-2">
+    <h4>🚀 Your Intercultural Action Plan</h4>
+    <textarea id="integrated-action-plan" placeholder="Based on these insights, what one behavior will you adapt in your next cross-cultural interaction?"></textarea>
+    <button id="save-action-plan" class="btn-secondary">💾 Save Action Plan</button>
+  </div>
+</div>
         <div class="nav-hint no-print">
           <button class="nav-btn active" onclick="navigateTo('sec1')">→ Continue to Section 1: Interpreting Results</button>
         </div>
