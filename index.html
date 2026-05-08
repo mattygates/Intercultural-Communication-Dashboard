@@ -8,45 +8,58 @@
 </head>
 <body>
   <div class="dashboard-layout container">
-    <nav class="sidebar no-print">
-      <div class="sidebar-header">
-        <h1>Intercultural Dashboard</h1>
-        <p class="subtitle">Culture Map + Intrivity</p>
-      </div>
-      <button class="nav-btn active" data-section="sec0">📥 Upload & Input</button>
-      <button class="nav-btn" data-section="sec1">1️⃣ Interpreting Results</button>
-      <button class="nav-btn highlight" data-section="summary">📄 Generate Snapshot</button>
+    <nav class="sidebar">
+      <h1>Intercultural Dashboard</h1>
+      <p class="subtitle">Culture Map + Intrivity</p>
+      <button class="nav-btn active" data-section="sec0">Upload & Input</button>
     </nav>
 
     <main class="content-area">
       <section id="sec0" class="panel active">
-        <h2>Section 0: Upload Results & Enter Assessment Data</h2>
+        <h2>Upload Results & Enter Assessment Data</h2>
 
         <div class="section-hero">
           <h3>Visual Profile Overview</h3>
-          <p>Use this top area to quickly read your intercultural pattern before diving into detailed sections.</p>
-        </div>
-
-        <div class="kpi-grid">
-          <div class="kpi-card"><div class="kpi-label">Message</div><div class="kpi-value" id="kpi-message">3.2/5</div><div class="kpi-delta up">↑ clearer than baseline</div></div>
-          <div class="kpi-card"><div class="kpi-label">Relationship</div><div class="kpi-value" id="kpi-relationship">4.1/5</div><div class="kpi-delta up">↑ trust-oriented</div></div>
-          <div class="kpi-card"><div class="kpi-label">Time</div><div class="kpi-value" id="kpi-time">2.7/5</div><div class="kpi-delta down">↓ needs clarity</div></div>
-          <div class="kpi-card"><div class="kpi-label">Space</div><div class="kpi-value" id="kpi-space">3.9/5</div><div class="kpi-delta up">↑ adaptive</div></div>
+          <p>Upload your assessment files, then generate insights.</p>
         </div>
 
         <div class="card">
-          <h3>🌍 Culture Map Dimension Snapshot</h3>
-          <div class="metric-row"><div class="metric-head"><span>Communicating</span><span id="val-communicating">5/10</span></div><div class="metric-track"><div class="metric-fill" style="width:50%"></div></div></div>
-          <div class="metric-row"><div class="metric-head"><span>Evaluating</span><span id="val-evaluating">5/10</span></div><div class="metric-track"><div class="metric-fill" style="width:50%"></div></div></div>
-          <div class="metric-row"><div class="metric-head"><span>Deciding</span><span id="val-deciding">5/10</span></div><div class="metric-track"><div class="metric-fill" style="width:50%"></div></div></div>
-          <div class="metric-row"><div class="metric-head"><span>Trusting</span><span id="val-trusting">5/10</span></div><div class="metric-track"><div class="metric-fill" style="width:50%"></div></div></div>
+          <h3>📄 Upload Assessments</h3>
+          <div class="action-row">
+            <label class="btn-secondary" for="pdf-input">Upload Intrivity PDF/TXT</label>
+            <input id="pdf-input" type="file" accept=".pdf,.txt" hidden>
+            <label class="btn-secondary" for="erin-input">Upload Erin Meyer JSON</label>
+            <input id="erin-input" type="file" accept=".json" hidden>
+          </div>
+          <div id="pdf-status" class="status-box"></div>
+          <div id="mrts-display" class="tool-box" style="display:none;">
+            <strong>MRTS Profile:</strong> <span id="mrts-code"></span>
+            <div class="grid-4 mt-2">
+              <div>Message: <span id="m-score">-</span>/5</div>
+              <div>Relationship: <span id="r-score">-</span>/5</div>
+              <div>Time: <span id="t-score">-</span>/5</div>
+              <div>Space: <span id="s-score">-</span>/5</div>
+            </div>
+          </div>
         </div>
 
         <div class="card">
-          <h3>💡 Combined Insights</h3>
-          <div class="insight-item aligned"><span class="chip low">Strength</span> You likely create relational safety before difficult conversations.</div>
-          <div class="insight-item"><span class="chip medium">Watch</span> Clarify deadlines explicitly to reduce cross-cultural time friction.</div>
-          <div class="insight-item misaligned"><span class="chip high">Risk</span> Indirect feedback may be interpreted as uncertainty in direct cultures.</div>
+          <h3>Culture Map Sliders</h3>
+          <div class="grid-2">
+            <div><label>Communicating <span id="val-communicating">5/10</span></label><input id="communicating" type="range" min="0" max="10" value="5" oninput="updateVal('communicating', this.value)"></div>
+            <div><label>Evaluating <span id="val-evaluating">5/10</span></label><input id="evaluating" type="range" min="0" max="10" value="5" oninput="updateVal('evaluating', this.value)"></div>
+            <div><label>Disagreeing <span id="val-disagreeing">5/10</span></label><input id="disagreeing" type="range" min="0" max="10" value="5" oninput="updateVal('disagreeing', this.value)"></div>
+            <div><label>Leading <span id="val-leading">5/10</span></label><input id="leading" type="range" min="0" max="10" value="5" oninput="updateVal('leading', this.value)"></div>
+            <div><label>Deciding <span id="val-deciding">5/10</span></label><input id="deciding" type="range" min="0" max="10" value="5" oninput="updateVal('deciding', this.value)"></div>
+            <div><label>Trusting <span id="val-trusting">5/10</span></label><input id="trusting" type="range" min="0" max="10" value="5" oninput="updateVal('trusting', this.value)"></div>
+            <div><label>Scheduling <span id="val-scheduling">5/10</span></label><input id="scheduling" type="range" min="0" max="10" value="5" oninput="updateVal('scheduling', this.value)"></div>
+          </div>
+          <div class="action-row"><button id="generate-insights-btn" class="btn-primary">Generate Insights</button></div>
+        </div>
+
+        <div id="insights-box" class="card" style="display:none;">
+          <h3>Combined Insights</h3>
+          <div id="insights-content"></div>
         </div>
       </section>
     </main>
