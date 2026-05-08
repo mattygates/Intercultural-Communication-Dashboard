@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
   
   // === GLOBAL STATE ===
-  let mrtsData = null; // { profile: "3432", m:3, r:4, t:3, s:2, raw: {...} }
+  let mrtsData = null;
   let cultureMapData = {};
 
   // === NAVIGATION ===
@@ -11,8 +11,12 @@ document.addEventListener('DOMContentLoaded', () => {
   window.navigateTo = function(sectionId) {
     panels.forEach(p => p.classList.remove('active'));
     navBtns.forEach(b => b.classList.remove('active'));
-    document.getElementById(sectionId)?.classList.add('active');
-    document.querySelector(`[data-section="${sectionId}"]`)?.classList.add('active');
+    const target = document.getElementById(sectionId);
+    if (target) {
+      target.classList.add('active');
+      const btn = document.querySelector(`[data-section="${sectionId}"]`);
+      if (btn) btn.classList.add('active');
+    }
   };
 
   navBtns.forEach(btn => {
@@ -21,7 +25,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // === HELPER: Update slider display ===
   window.updateVal = function(id, val) {
-    document.getElementById(`val-${id}`).textContent = val;
+    const display = document.getElementById(`val-${id}`);
+    if (display) display.textContent = val;
     cultureMapData[id] = parseInt(val);
     saveToStorage();
   };
@@ -41,12 +46,12 @@ document.addEventListener('DOMContentLoaded', () => {
     pdfStatus.innerHTML = `
       ⚠️ PDF parsing unavailable. Please enter your MRTS profile manually:
       <div style="margin-top:12px; display:grid; grid-template-columns:repeat(4,1fr); gap:8px;">
-        <div><label>Message (1-5): <input type="number" id="manual-m" min="1" max="5" value="3"></label></div>
-        <div><label>Relationship (1-5): <input type="number" id="manual-r" min="1" max="5" value="4"></label></div>
-        <div><label>Time (1-5): <input type="number" id="manual-t" min="1" max="5" value="3"></label></div>
-        <div><label>Space (1-5): <input type="number" id="manual-s" min="1" max="5" value="2"></label></div>
+        <div><label>Message (1-5): <input type="number" id="manual-m" min="1" max="5" value="3" style="width:100%;padding:6px;"></label></div>
+        <div><label>Relationship (1-5): <input type="number" id="manual-r" min="1" max="5" value="4" style="width:100%;padding:6px;"></label></div>
+        <div><label>Time (1-5): <input type="number" id="manual-t" min="1" max="5" value="3" style="width:100%;padding:6px;"></label></div>
+        <div><label>Space (1-5): <input type="number" id="manual-s" min="1" max="5" value="2" style="width:100%;padding:6px;"></label></div>
       </div>
-      <button id="use-manual-btn" class="btn-primary" style="margin-top:12px;">Use Manual Entry</button>
+      <button id="use-manual-btn" class="btn-primary" style="margin-top:12px;">Load Manual Profile</button>
     `;
     
     document.getElementById('use-manual-btn')?.addEventListener('click', () => {
@@ -64,14 +69,14 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Drag & drop handlers
-  ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-    dropZone?.addEventListener(eventName, e => { e.preventDefault(); e.stopPropagation(); }, false);
+  ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(e => {
+    dropZone?.addEventListener(e, ev => { ev.preventDefault(); ev.stopPropagation(); }, false);
   });
-  ['dragenter', 'dragover'].forEach(eventName => {
-    dropZone?.addEventListener(eventName, () => dropZone?.classList.add('dragover'), false);
+  ['dragenter', 'dragover'].forEach(e => {
+    dropZone?.addEventListener(e, () => dropZone?.classList.add('dragover'), false);
   });
-  ['dragleave', 'drop'].forEach(eventName => {
-    dropZone?.addEventListener(eventName, () => dropZone?.classList.remove('dragover'), false);
+  ['dragleave', 'drop'].forEach(e => {
+    dropZone?.addEventListener(e, () => dropZone?.classList.remove('dragover'), false);
   });
 
   dropZone?.addEventListener('drop', e => {
@@ -95,9 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     try {
       const arrayBuffer = await file.arrayBuffer();
-      const loadingTask = pdfjsLib.getDocument(arrayBuffer);
-      const pdf = await loadingTask.promise;
-      
+      const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
       let fullText = '';
       for (let i = 1; i <= pdf.numPages; i++) {
         const page = await pdf.getPage(i);
@@ -106,7 +109,6 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       
       const mrtsProfile = extractMRTSProfile(fullText);
-      
       if (mrtsProfile) {
         mrtsData = mrtsProfile;
         displayMRTSResults(mrtsProfile);
@@ -126,150 +128,121 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function extractMRTSProfile(text) {
-    const profileMatch = text.match(/(?:MRTS\s*PROFILE|M\s+R\s+T\s+S)\s+(\d)\s+(\d)\s+(\d)\s+(\d)/i);
+    // Match MRTS 3 4 3 2 or MRTS PROFILE 3 4 3 2
+    const profileMatch = text.match(/MRTS\s+(?:PROFILE\s+)?(\d)\s+(\d)\s+(\d)\s+(\d)/i);
     if (profileMatch) {
-      const [, m, r, t, s] = profileMatch;
-      return {
-        profile: `${m}${r}${t}${s}`,
-        m: parseInt(m), r: parseInt(r), t: parseInt(t), s: parseInt(s),
-        raw: extractRawScores(text)
-      };
+      const [, m, r, t, s] = profileMatch.map(Number);
+      return { profile: `${m}${r}${t}${s}`, m, r, t, s };
     }
-    
-    const domainMatch = text.match(/MESSAGE[\s\S]*?(\d\.\d)[\s\S]*?RELATIONSHIP[\s\S]*?(\d\.\d)[\s\S]*?TIME[\s\S]*?(\d\.\d)[\s\S]*?SPACE[\s\S]*?(\d\.\d)/i);
-    if (domainMatch) {
-      const [, mRaw, rRaw, tRaw, sRaw] = domainMatch;
-      return {
-        profile: `${scoreToNumeral(parseFloat(mRaw))}${scoreToNumeral(parseFloat(rRaw))}${scoreToNumeral(parseFloat(tRaw))}${scoreToNumeral(parseFloat(sRaw))}`,
-        m: scoreToNumeral(parseFloat(mRaw)),
-        r: scoreToNumeral(parseFloat(rRaw)),
-        t: scoreToNumeral(parseFloat(tRaw)),
-        s: scoreToNumeral(parseFloat(sRaw)),
-        raw: { m: parseFloat(mRaw), r: parseFloat(rRaw), t: parseFloat(tRaw), s: parseFloat(sRaw) }
-      };
+    // Fallback: look for "3 4 3 2" pattern anywhere
+    const simpleMatch = text.match(/(\d)\s+(\d)\s+(\d)\s+(\d)/);
+    if (simpleMatch) {
+      const [, m, r, t, s] = simpleMatch.map(Number);
+      if (m>=1 && m<=5 && r>=1 && r<=5 && t>=1 && t<=5 && s>=1 && s<=5) {
+        return { profile: `${m}${r}${t}${s}`, m, r, t, s };
+      }
     }
     return null;
   }
 
-  function extractRawScores(text) {
-    const scores = {};
-    const patterns = [
-      [/MESSAGE[\s\S]*?(\d\.\d)/i, 'm'],
-      [/RELATIONSHIP[\s\S]*?(\d\.\d)/i, 'r'],
-      [/TIME[\s\S]*?(\d\.\d)/i, 't'],
-      [/SPACE[\s\S]*?(\d\.\d)/i, 's']
-    ];
-    patterns.forEach(([regex, key]) => {
-      const match = text.match(regex);
-      if (match) scores[key] = parseFloat(match[1]);
-    });
-    return scores;
-  }
-
-  function scoreToNumeral(raw) {
-    if (raw >= 4.3) return 5;
-    if (raw >= 3.5) return 4;
-    if (raw >= 2.7) return 3;
-    if (raw >= 1.9) return 2;
-    return 1;
-  }
-
   function displayMRTSResults(data) {
-    document.getElementById('mrts-code').textContent = data.profile;
-    document.getElementById('m-score').textContent = data.m;
-    document.getElementById('r-score').textContent = data.r;
-    document.getElementById('t-score').textContent = data.t;
-    document.getElementById('s-score').textContent = data.s;
-    if (data.raw) {
-      document.getElementById('m-raw').textContent = data.raw.m?.toFixed(1) || '-';
-      document.getElementById('r-raw').textContent = data.raw.r?.toFixed(1) || '-';
-      document.getElementById('t-raw').textContent = data.raw.t?.toFixed(1) || '-';
-      document.getElementById('s-raw').textContent = data.raw.s?.toFixed(1) || '-';
-    }
+    const ids = { m: 'm-score', r: 'r-score', t: 't-score', s: 's-score' };
+    const rawIds = { m: 'm-raw', r: 'r-raw', t: 't-raw', s: 's-raw' };
+    Object.entries(ids).forEach(([key, id]) => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = data[key];
+    });
+    const codeEl = document.getElementById('mrts-code');
+    if (codeEl) codeEl.textContent = data.profile;
   }
 
-  // === CORRELATION ENGINE: Intrivity ↔ Culture Map ===
-  const mrtscultureMap = {
+  // === CORRELATION ENGINE (FIXED) ===
+  const correlationMap = {
     message: {
-      dimensions: ['communicating', 'evaluating', 'disagreeing'],
-      insight: (mrtsscore, cmscore) => {
-        if (mrtsscore <= 2 && cmscore >= 6) return "Your direct expression style may feel abrupt to high-context colleagues. Practice softening with downgraders ('perhaps', 'maybe') when working with indirect cultures.";
-        if (mrtsscore >= 4 && cmscore <= 4) return "Your implicit expression may be missed by low-context colleagues. Practice stating key points explicitly before adding nuance.";
+      cmDims: ['communicating', 'evaluating', 'disagreeing'],
+      getInsight: (mScore, cmScores) => {
+        const cmScore = cmScores[cmDims[0]] || 5;
+        if (mScore <= 2 && cmScore >= 6) return "Your direct expression style may feel abrupt to high-context colleagues. Practice softening with downgraders ('perhaps', 'maybe') when working with indirect cultures.";
+        if (mScore >= 4 && cmScore <= 4) return "Your implicit expression may be missed by low-context colleagues. Practice stating key points explicitly before adding nuance.";
         return "Your neutral expression style offers flexibility. Consciously adapt directness based on your counterpart's cultural positioning.";
       }
     },
     relationship: {
-      dimensions: ['leading', 'trusting', 'deciding'],
-      insight: (mrtsscore, cmscore) => {
-        if (mrtsscore >= 4 && cmscore <= 4) return "Your reliance on personal networks aligns with relationship-based cultures, but task-based colleagues may see this as 'favoritism'. Explicitly state criteria for decisions to build trust.";
-        if (mrtsscore <= 2 && cmscore >= 6) return "Your transactional approach may feel cold in relationship-based cultures. Invest time in personal connection before business: 'Before we dive in, how has your week been?'";
-        return "Your balanced relational awareness is a bridge-builder. Use it to help task-focused colleagues understand relationship norms, and relationship-focused colleagues understand task expectations.";
+      cmDims: ['leading', 'trusting', 'deciding'],
+      getInsight: (mScore, cmScores) => {
+        const cmScore = cmScores[cmDims[0]] || 5;
+        if (mScore >= 4 && cmScore <= 4) return "Your reliance on personal networks aligns with relationship-based cultures, but task-based colleagues may see this as 'favoritism'. Explicitly state criteria for decisions to build trust.";
+        if (mScore <= 2 && cmScore >= 6) return "Your transactional approach may feel cold in relationship-based cultures. Invest time in personal connection before business.";
+        return "Your balanced relational awareness is a bridge-builder.";
       }
     },
     time: {
-      dimensions: ['scheduling', 'deciding'],
-      insight: (mrtsscore, cmscore) => {
-        if (mrtsscore <= 2 && cmscore >= 6) return "Your strict timeframe preference fits linear-time cultures, but may feel rigid in flexible-time settings. Build buffer time into plans and expect schedule shifts.";
-        if (mrtsscore >= 4 && cmscore <= 4) return "Your flexible timeframe approach fits fluid-time cultures, but may seem unreliable in linear-time settings. Explicitly confirm deadlines: 'Just to confirm, this is due Friday at 3pm?'";
-        return "Your neutral time management is adaptable. Clarify expectations upfront: 'Is this deadline fixed or flexible?' and adjust your planning accordingly.";
+      cmDims: ['scheduling', 'deciding'],
+      getInsight: (mScore, cmScores) => {
+        const cmScore = cmScores[cmDims[0]] || 5;
+        if (mScore <= 2 && cmScore >= 6) return "Your strict timeframe preference fits linear-time cultures, but may feel rigid in flexible-time settings. Build buffer time into plans.";
+        if (mScore >= 4 && cmScore <= 4) return "Your flexible timeframe approach fits fluid-time cultures, but may seem unreliable in linear-time settings. Explicitly confirm deadlines.";
+        return "Your neutral time management is adaptable. Clarify expectations upfront.";
       }
     },
     space: {
-      dimensions: ['communicating', 'disagreeing', 'leading'],
-      insight: (mrtsscore, cmscore) => {
-        if (mrtsscore <= 2 && cmscore >= 6) return "Your reserved nonverbals fit high-context cultures, but may seem disengaged in expressive settings. Signal attention explicitly: nodding, brief verbal acknowledgments.";
-        if (mrtsscore >= 4 && cmscore <= 4) return "Your expressive nonverbals fit low-context cultures, but may overwhelm reserved colleagues. Practice 'nonverbal calibration': match your counterpart's energy level.";
-        return "Your moderate nonverbal style is adaptable. Scan your counterpart's cues and adjust: more expressiveness for expressive cultures, more restraint for reserved cultures.";
+      cmDims: ['communicating', 'disagreeing', 'leading'],
+      getInsight: (mScore, cmScores) => {
+        const cmScore = cmScores[cmDims[0]] || 5;
+        if (mScore <= 2 && cmScore >= 6) return "Your reserved nonverbals fit high-context cultures, but may seem disengaged in expressive settings. Signal attention explicitly.";
+        if (mScore >= 4 && cmScore <= 4) return "Your expressive nonverbals fit low-context cultures, but may overwhelm reserved colleagues. Practice 'nonverbal calibration'.";
+        return "Your moderate nonverbal style is adaptable. Scan your counterpart's cues and adjust.";
       }
     }
   };
 
-  // === GENERATE COMBINED INSIGHTS ===
+  // === GENERATE INSIGHTS BUTTON (ROBUST) ===
   document.getElementById('generate-insights-btn')?.addEventListener('click', () => {
-    if (!mrtsData) {
-      alert('Please upload your Intrivity MRTS PDF first.');
-      return;
-    }
-    
-    ['communicating','evaluating','persuading','leading','deciding','trusting','disagreeing','scheduling'].forEach(dim => {
-      cultureMapData[dim] = parseInt(document.getElementById(dim).value);
-    });
-    
-    const insights = [];
-    ['message', 'relationship', 'time', 'space'].forEach(domain => {
-      const score = mrtsData[domain.charAt(0)];
-      const config = mrtscultureMap[domain];
-      let insight = config.insights?.neutral || "Balanced style detected. Consciously adapt to your counterpart's cultural positioning.";
+    try {
+      if (!mrtsData) {
+        alert('Please upload your Intrivity MRTS PDF first.');
+        return;
+      }
+
+      // Read all sliders
+      ['communicating','evaluating','persuading','leading','deciding','trusting','disagreeing','scheduling'].forEach(dim => {
+        cultureMapData[dim] = parseInt(document.getElementById(dim)?.value || 5);
+      });
+
+      const insightsBox = document.getElementById('insights-content');
+      if (!insightsBox) {
+        console.error('Missing #insights-content element. Check HTML structure.');
+        return;
+      }
+
+      let html = '';
+      Object.entries(correlationMap).forEach(([domain, config]) => {
+        const score = mrtsData[domain.charAt(0)];
+        const insight = config.getInsight(score, cultureMapData);
+        const alignment = (score <= 2 || score >= 4) ? 'misaligned' : 'aligned';
+        html += `
+          <div class="insight-item ${alignment}">
+            <h4>${domain.charAt(0).toUpperCase() + domain.slice(1)} Domain</h4>
+            <p><span class="insight-tag">MRTS: ${score}/5</span> <span class="insight-tag">CM: ${config.cmDims.join(', ')}</span></p>
+            <p>${insight}</p>
+          </div>`;
+      });
+
+      insightsBox.innerHTML = html;
+      document.getElementById('insights-box').style.display = 'block';
+      document.getElementById('insights-box').scrollIntoView({ behavior: 'smooth' });
       
-      if (score >= 4) insight = config.insight(score, 10);
-      else if (score <= 2) insight = config.insight(score, 0);
-      else insight = config.insight(score, 5);
-      
-      insights.push(`<h4>${domain.charAt(0).toUpperCase() + domain.slice(1)} Domain</h4>
-        <p><span class="insight-tag">MRTS: ${score}/5</span> <span class="insight-tag">Culture Map: ${config.dimensions.join(', ')}</span></p>
-        <p>${insight}</p>`);
-    });
-    
-    const synthesis = [];
-    if (mrtsData.r >= 4 && cultureMapData.trusting >= 6) synthesis.push("You likely build trust through personal connection—leverage this when working with relationship-based cultures.");
-    if (mrtsData.m >= 4 && cultureMapData.communicating <= 4) synthesis.push("You read subtle cues well, but your direct communication style may require you to explicitly state intentions to avoid ambiguity.");
-    if (mrtsData.t <= 2 && cultureMapData.scheduling <= 4) synthesis.push("Your preference for structure aligns with linear-time cultures—use your clarity to help flexible-time colleagues understand deadlines.");
-    
-    if (synthesis.length > 0) {
-      insights.push(`<h4>🔗 Cross-Framework Synthesis</h4><p>${synthesis.join(" ")}</p>`);
-    } else {
-      insights.push(`<h4>🔗 Cross-Framework Synthesis</h4><p>Your MRTS and Culture Map profiles show balanced flexibility. Focus on consciously adapting one domain at a time when entering new cultural contexts.</p>`);
+    } catch (err) {
+      console.error('Insight generation failed:', err);
+      alert('Error generating insights. Please check the browser console (F12) for details.');
     }
-    
-    document.getElementById('insights-content').innerHTML = insights.join('');
-    document.getElementById('insights-box').style.display = 'block';
-    document.getElementById('insights-box').scrollIntoView({ behavior: 'smooth' });
   });
 
   // === LOCAL STORAGE ===
   function saveToStorage() {
-    const data = { mrts: mrtsData, cultureMap: cultureMapData };
-    localStorage.setItem('intercultural-dashboard-profile', JSON.stringify(data));
+    try {
+      localStorage.setItem('intercultural-dashboard-profile', JSON.stringify({ mrts: mrtsData, cultureMap: cultureMapData }));
+    } catch (e) { console.warn('Storage save failed:', e); }
   }
 
   function loadFromStorage() {
@@ -287,7 +260,7 @@ document.addEventListener('DOMContentLoaded', () => {
         displayMRTSResults(mrtsData);
         mrtsDisplay.style.display = 'block';
       }
-    } catch (e) { console.warn('Could not load saved profile:', e); }
+    } catch (e) { console.warn('Storage load failed:', e); }
   }
 
   loadFromStorage();
@@ -296,14 +269,14 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('save-profile-btn')?.addEventListener('click', () => {
     const data = { mrts: mrtsData, cultureMap: cultureMapData, exported: new Date().toISOString() };
     const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
-    const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = url; a.download = `intercultural-profile-${new Date().toISOString().slice(0,10)}.json`;
-    a.click(); URL.revokeObjectURL(url);
+    a.href = URL.createObjectURL(blob);
+    a.download = `intercultural-profile-${new Date().toISOString().slice(0,10)}.json`;
+    a.click();
   });
 
   document.getElementById('load-profile-btn')?.addEventListener('click', () => {
-    document.getElementById('file-input').click();
+    document.getElementById('file-input')?.click();
   });
 
   document.getElementById('file-input')?.addEventListener('change', (e) => {
@@ -325,3 +298,41 @@ document.addEventListener('DOMContentLoaded', () => {
       } catch (err) { alert('❌ Error loading profile: ' + err.message); }
     };
     reader.readAsText(file);
+  });
+
+  // === SNAPSHOT GENERATION ===
+  document.getElementById('generate-snapshot-btn')?.addEventListener('click', () => {
+    const getVal = (id) => document.getElementById(id)?.value?.trim() || '';
+    const strengths = [];
+    if (mrtsData?.m >= 4) strengths.push("Reading subtle, implicit messages");
+    if (mrtsData?.r >= 4) strengths.push("Building trust through personal connection");
+    if (cultureMapData?.communicating >= 6) strengths.push("Navigating high-context communication");
+    strengths.push("Bridging communication gaps and clarifying intent");
+    document.getElementById('snap-strengths').innerHTML = strengths.slice(0,3).map(s => `<li>I may be strong at: ${s}</li>`).join('');
+    
+    const risks = [];
+    if (mrtsData?.m <= 2 && cultureMapData?.communicating >= 6) risks.push("Miss implicit cues in high-context settings");
+    if (mrtsData?.t <= 2 && cultureMapData?.scheduling >= 6) risks.push("Experience frustration with flexible deadlines");
+    risks.push("Others may misread me as hesitant when processing silently");
+    document.getElementById('snap-risks').innerHTML = risks.slice(0,3).map(r => `<li>I may unintentionally: ${r}</li>`).join('');
+    
+    document.getElementById('snap-action-1').textContent = `Be more explicit about: ${getVal('sec10-adapt') || 'decision finality and feedback expectations'}`;
+    document.getElementById('snap-action-2').textContent = `Ask before assuming: ${getVal('sec10-keep') || 'meaning behind indirect cues or silence'}`;
+    document.getElementById('snap-action-3').textContent = `Clarify team norms around: ${getVal('sec10-norm') || 'urgency, feedback style, and conflict approach'}`;
+    
+    const conv = getVal('sec10-ask') || getVal('sec9-check') || 'How we align on communication and decision styles';
+    document.getElementById('snap-conversation').textContent = `"The conversation I need to have with my team is: ${conv}."`;
+    
+    navigateTo('summary');
+    window.scrollTo(0, 0);
+  });
+
+  // === AUTO-SAVE REFLECTIONS ===
+  document.querySelectorAll('textarea').forEach(input => {
+    const saved = localStorage.getItem(input.id);
+    if (saved) input.value = saved;
+    input.addEventListener('input', () => {
+      localStorage.setItem(input.id, input.value);
+    });
+  });
+});
